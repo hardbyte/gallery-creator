@@ -56,7 +56,7 @@ angular.module('galleryGenApp', [
                     ctx.drawImage(image, 0, 0, width, height);
                     var newImage = new Image();
                     newImage.title = image.title;
-                    newImage.src = canvas.toDataURL('image/png', 1.0);
+                    newImage.src = canvas.toDataURL('image/png');
                     return newImage;
                 }
 
