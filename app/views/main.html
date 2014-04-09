@@ -7,38 +7,74 @@
   <h3 class="text-muted">gallery creator thing</h3>
 </div>
 
-<div class="jumbotron" droppable>
-  <h1>Gallery Creator Thing</h1>
+<div class="jumbotron">
+    <div droppable>
+  <h1>Drop images here</h1>
   <p class="lead">
     <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Drop your images here
+    Then check all the image captions
   </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#">All done? Splendid!</a></p>
+    <label>Max size of thumbnails: <input type="number" ng-model="maxHeight"/></label>
+    </div>
 </div>
 
-<div class="row marketing">
-  <h4>Quick Stats</h4>
-  <p>
+<p>
     Number of images loaded: {{images.length}}
-  </p>
-    <pre>{{rootScope}}</pre>
+</p>
+
+<div ng-if="processing" class="row marketing">
+    <h2>images.json:</h2>
+    <pre ng-bind="imageData"></pre>
+
+</div>
+
+
+<div ng-hide="processing" class="row marketing">
+
+
 
   <div class="" ng-repeat="image in images">
-      <h4 ng-bind="image.name"></h4>
-      <div class="row">
-          <img class="col-sm-4" ng-src="{{image.src}}"/>
+      <h4>{{$index + 1}}: <span ng-bind="image.title"></span></h4>
+      <div class="row" ng-init="image.id = $index + 1">
+          <div class="col-sm-4">
+              <img class="img-responsive" ng-src="{{image.thumbnail.src}}"/>
+          </div>
+
           <div class="col-sm-8">
-              <label>Caption:<input ng-model="image.name"></label>
-              <pre>
-                  Size: {{image.src.length}}
-              </pre>
+              <div class="form-group">
+                  <label>Filename </label><input class="form-control" type="text" ng-model="image.filename"/>
+              </div>
+
+
+              <div class="form-group">
+                  <label>Caption:</label>
+                  <textarea class="form-control" rows="3" ng-model="image.title"></textarea>
+              </div>
+
+              <h4>Original:</h4>
+              <ul>
+
+                  <li>Width: {{image.width}}</li>
+                  <li>Height: {{image.height}}</li>
+                  <li>Aspect Ratio: {{image.width / image.height |number:2}}</li>
+              </ul>
+              <h4>Generated Thumbnail:</h4>
+              <ul>
+                  <li>Width: {{image.thumbnail.width}}</li>
+                  <li>Height: {{image.thumbnail.height}}</li>
+                  <li>Aspect Ratio: {{image.thumbnail.width / image.thumbnail.height |number:2 }}</li>
+              </ul>
+
           </div>
       </div>
 
   </div>
 
+    <p><a class="btn btn-lg btn-success btn-block" ng-click="processImages()">All done? Splendid! Time to get busy</a></p>
+
+
 </div>
 
 <div class="footer">
-  <p>♥ from the Yeoman team</p>
+  <p>Hardbyte Technology 2014 <a href="https://twitter.com/thorneynz">@thorneynz</a></p>
 </div>

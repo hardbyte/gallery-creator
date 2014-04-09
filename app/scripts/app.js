@@ -16,23 +16,87 @@ angular.module('galleryGenApp', [
         redirectTo: '/'
       });
   })
-    .factory("imageProvider", function($log, $rootScope){
+
+    // Todo refactor into services and filters etc
+    .factory("imageProvider", function($log, $q, $rootScope){
         $log.info("Service ready");
         var observerCallbacks = [];
         var images = [];
-
-        $rootScope.$on("new-image", function(e, image){
-            $log.info("Got new image data!");
-            images.push({src:image, name: ''});
-            notifyObservers();
-            e.stopPropagation();
-        });
+        var maxHeight = 500;
 
         var notifyObservers = function(){
             angular.forEach(observerCallbacks, function(cb){cb();});
         };
 
+        var generateThumbnail = function(originalImage){
+            var deferred = $q.defer();
+            setTimeout(function() {
+
+                $log.info("Making thumbnail for " + originalImage.filename);
+                $log.info("MaxHeight is currently: " + maxHeight);
+                $log.info(typeof(maxHeight));
+
+                var img = originalImage;
+
+
+                // Make em small
+                function foldImage(image) {
+
+                    var width = Math.floor(image.width / 2),
+                        height = Math.floor(image.height / 2);
+
+                    // Create an off screen canvas
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext('2d');
+
+                    // Set the canvas dimensions
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    ctx.drawImage(image, 0, 0, width, height);
+                    var newImage = new Image();
+                    newImage.title = image.title;
+                    newImage.src = canvas.toDataURL('image/png', 1.0);
+                    return newImage;
+                }
+
+
+                while (img.height > maxHeight) {
+                    // Fold the image in half
+                    img = foldImage(img);
+                }
+
+                $log.info("New thumbnail height: " + img.height);
+
+                deferred.resolve(img);
+            }, 100);
+
+
+            return deferred.promise;
+        };
         return {
+            setMaxHeight: function(value){
+                $log.debug("Updating max height to: " + value);
+                maxHeight = value;
+            },
+            addImage: function(imageData){
+                $log.info("Got new image data!");
+                var img = new Image();
+                var filename = imageData.name;
+                filename = filename.slice(0, filename.lastIndexOf("."));
+                //filename = filename.split(".").join(' ').split('-').join(' ').split('_').join(' ');
+                $log.info("filename: " + filename);
+                img.filename = filename;
+                img.src = imageData.dataURI;
+
+                generateThumbnail(img).then(function(thumb){
+                    img.thumbnail = thumb;
+
+                });
+                images.push(img);
+                notifyObservers();
+
+            },
             images: images,
             registerObserver: function(callback){
                 observerCallbacks.push(callback);
@@ -40,7 +104,7 @@ angular.module('galleryGenApp', [
         }
 
     })
-    .directive('droppable', function($compile, $rootScope, $log){
+    .directive('droppable', function($compile, $rootScope, $log, imageProvider){
         return {
             restrict: "A",
             link: function(scope, element, attrs){
@@ -64,16 +128,16 @@ angular.module('galleryGenApp', [
 
                     for(var i=0; i<files.length; i++){
                         var f = files[i];
+
                         var reader = new FileReader();
-                        reader.onload = (function(){return function(e){
+                        reader.onload = (function(f){return function(e){
                             $log.info("File loaded");
+                            $log.info(f.name);
                             $log.info(e);
 
                             // e.target.result now has the image as a data uri
-
-
                             $log.info("Now we try share...");
-                            $rootScope.$emit("new-image", e.target.result);
+                            imageProvider.addImage({name: f.name, dataURI: e.target.result});
 
 
                         };})(f);
