@@ -18,7 +18,7 @@ angular.module('galleryGenApp', [
   })
 
     // Todo refactor into services and filters etc
-    .factory("imageProvider", function($log, $q, $rootScope){
+    .factory("imageProvider", function($log, $q){
         $log.info("Service ready");
         var observerCallbacks = [];
         var images = [];
@@ -32,7 +32,7 @@ angular.module('galleryGenApp', [
             var deferred = $q.defer();
             setTimeout(function() {
 
-                $log.info("Making thumbnail for " + originalImage.filename);
+                $log.info("Making thumbnail for " + originalImage.title);
                 $log.info("MaxHeight is currently: " + maxHeight);
                 $log.info(typeof(maxHeight));
 
@@ -57,6 +57,7 @@ angular.module('galleryGenApp', [
                     var newImage = new Image();
                     newImage.title = image.title;
                     newImage.src = canvas.toDataURL('image/png');
+
                     return newImage;
                 }
 
@@ -86,14 +87,16 @@ angular.module('galleryGenApp', [
                 filename = filename.slice(0, filename.lastIndexOf("."));
                 //filename = filename.split(".").join(' ').split('-').join(' ').split('_').join(' ');
                 $log.info("filename: " + filename);
-                img.filename = filename;
+
                 img.src = imageData.dataURI;
+                img.title = filename;
+                var idx = images.push({filename: filename, original: img});
+                $log.info("Index is " + idx);
 
                 generateThumbnail(img).then(function(thumb){
-                    img.thumbnail = thumb;
-
+                    images[idx-1].thumbnail = thumb;
                 });
-                images.push(img);
+
                 notifyObservers();
 
             },

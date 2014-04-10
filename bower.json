@@ -11,6 +11,7 @@
     "angular-cookies": "1.2.6",
     "angular-sanitize": "1.2.6",
     "angular-route": "1.2.6",
+    "FileSaver": "*",
     "jszip": "~2.0.0"
   },
   "devDependencies": {

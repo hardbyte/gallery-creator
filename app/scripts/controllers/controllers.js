@@ -1,10 +1,12 @@
 'use strict';
 
 angular.module('galleryGenApp')
-  .controller('MainCtrl', function ($scope, $rootScope, $log, imageProvider) {
+  .controller('MainCtrl', function ($scope, $rootScope, $sce, $log, imageProvider) {
         $scope.processing = false;
-        // An array of Dom Image objects which also have a thumbnail attribute
+        // An array of {original: <Dom Image object>, thumb: <Dom Image Object>, filename: <str>}'s
         $scope.images = imageProvider.images;
+
+        $scope.download = {show: false};
 
         $scope.maxHeight = 500;
         $scope.$watch('maxHeight', function(value){
@@ -32,11 +34,8 @@ angular.module('galleryGenApp')
             $scope.images.forEach(function(img){
                 $log.info("Processing img: " + img.filename);
 
-
                 var filename = img.filename + ".png";
                 var thumbnailFilename = img.filename + "_thumb" + ".png";
-                var thumbData = img.thumbnail.src;
-
 
                 var data= {
                     source: "images/" + thumbnailFilename,
@@ -44,15 +43,15 @@ angular.module('galleryGenApp')
                     height: img.thumbnail.height,
                     images: [
                         {
-                            height: img.height,
-                            width: img.width,
+                            height: img.original.height,
+                            width: img.original.width,
                             source: 'images/' + filename
                         }
                     ]
                 };
 
                 if(img.filename){data.id = img.filename}
-                if(img.title){data.name = img.title}
+                if(img.original.title){data.name = img.title}
 
                 allImageData.push(data);
 
@@ -74,21 +73,26 @@ angular.module('galleryGenApp')
                 var thData = getBase64Image(img.thumbnail) + '\n';//.replace(/^data:image\/(png|jpg);base64,/, "") + '\n';
 
                 //$log.debug(imData.length);
-                $log.debug(thData.length);
-
-
+                //$log.debug(thData.length);
 
                 imgFolder.file(thumbnailFilename, thData, {base64: true});
                 //imgFolder.file(filename, imData, {base64: true});
 
             });
+
             $scope.imageData = angular.toJson(allImageData, true);
+
+
             zip.file("images.json", $scope.imageData);
-            var content = zip.generate();
-            location.href="data:application/zip;base64,"+content;
+            $log.info("Creating zip....");
 
-            // Make actual fullsize images?
+            var content = zip.generate({type: 'blob'});
+            $log.info("Zip ready! Size is: " + content.length);
+            $scope.download = function() {
+                //location.href = $sce.trustAsResourceUrl("data:application/zip;base64," + content);
+                saveAs(content, "hello.zip");
+            };
 
-            // Make thumbnails
+            $scope.download.show = true;
         };
   });
