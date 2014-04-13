@@ -4,7 +4,9 @@ angular.module('galleryGenApp', [
   'ngCookies',
   'ngResource',
   'ngSanitize',
-  'ngRoute'
+  'ngRoute',
+  'ui.directives',
+  'placeholders.img'
 ])
   .config(function ($routeProvider) {
     $routeProvider

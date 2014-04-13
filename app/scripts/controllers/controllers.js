@@ -90,7 +90,7 @@ angular.module('galleryGenApp')
             $log.info("Zip ready! Size is: " + content.length);
             $scope.download = function() {
                 //location.href = $sce.trustAsResourceUrl("data:application/zip;base64," + content);
-                saveAs(content, "hello.zip");
+                saveAs(content, "gallery_thumbnails.zip");
             };
 
             $scope.download.show = true;

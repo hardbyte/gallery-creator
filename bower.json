@@ -12,7 +12,10 @@
     "angular-sanitize": "1.2.6",
     "angular-route": "1.2.6",
     "FileSaver": "*",
-    "jszip": "~2.0.0"
+    "jszip": "~2.0.0",
+    "jqueryui": "~1.10.4",
+    "angular-ui": "~0.4.0",
+    "angular-placeholders": "*"
   },
   "devDependencies": {
     "angular-mocks": "1.2.6",
